@@ -1,0 +1,96 @@
+.admissions-content { padding-top: 32px; }
+.admissions-heading { align-items: flex-end; }
+.admissions-live,.poll-indicator { display: inline-flex; align-items: center; gap: 8px; color: #64746a; }
+.admissions-live span { width: 9px; height: 9px; border-radius: 50%; background: #4b9874; box-shadow: 0 0 0 4px #e6f2e9; }
+.create-class-panel { padding: 22px 24px; margin-bottom: 16px; }
+.admissions-section-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.admissions-section-title h2 { margin: 0; color: #304139; font: 700 18px/1.35 'Manrope', sans-serif; }
+.admissions-section-title p { margin: 5px 0 0; color: #758279; font-size: 14px; line-height: 1.5; }
+.identity-lock { flex: 0 0 auto; padding: 6px 10px; border: 1px solid #e4e9e4; border-radius: 6px; color: #617267; background: #f7f9f7; }
+.identity-form { display: grid; gap: 9px; }
+.identity-form>label,.admission-field>span { color: #3d4c43; font-weight: 600; }
+.identity-controls { display: flex; gap: 10px; }
+.identity-controls input,.admission-field input { width: 100%; min-width: 0; height: 42px; padding: 0 12px; border: 1px solid #dce4dd; border-radius: 6px; color: #273a31; background: #fff; outline: none; }
+.identity-controls input:focus,.admission-field input:focus { border-color: #5e9a7a; box-shadow: 0 0 0 3px rgba(58,139,114,.12); }
+.field-help { color: #76847a; line-height: 1.5; }
+.create-class-form { display: grid; grid-template-columns: minmax(0, 1fr) 170px auto; align-items: end; gap: 12px; }
+.admission-field { display: grid; gap: 8px; min-width: 0; }
+.admission-field input { display: block; }
+.admission-button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid transparent; border-radius: 6px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background .16s ease, border-color .16s ease, color .16s ease; }
+.admission-button:disabled { opacity: .55; cursor: not-allowed; }
+.admission-button-primary { color: #fff; background: #397c61; }.admission-button-primary:hover:not(:disabled) { background: #2f6d54; }
+.admission-button-secondary { border-color: #dce5dd; color: #4e6256; background: #fff; }.admission-button-secondary:hover:not(:disabled) { border-color: #acc9b4; background: #f5f9f5; }
+.admission-button-danger { border-color: #ecd7d2; color: #9c5548; background: #fff; }.admission-button-danger:hover:not(:disabled) { background: #fcf3f1; }
+.admissions-toast { position: fixed; z-index: 80; top: 82px; left: 50%; width: min(580px, calc(100vw - 32px)); display: flex; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid; border-radius: 8px; background: #fff; box-shadow: 0 12px 32px rgba(30,48,38,.16); transform: translateX(-50%); animation: admissions-toast-enter .16s ease-out both; }
+.admissions-toast span { flex: 1; line-height: 1.45; }
+.admissions-toast-success { border-color: #cae4d1; color: #32684c; background: #f3faf4; }
+.admissions-toast-error { border-color: #eccbc3; color: #8a4438; background: #fff7f5; }
+@keyframes admissions-toast-enter { from { opacity: 0; translate: 0 -6px; } to { opacity: 1; translate: 0 0; } }
+.application-screen { display: grid; gap: 16px; }
+.application-breadcrumb { display: flex; align-items: center; gap: 10px; color: #879188; }
+.application-breadcrumb .admission-button { min-height: 38px; }
+.application-breadcrumb strong { color: #415248; font-weight: 600; }
+.application-form-panel { padding: 22px 24px; }
+.application-class-summary .class-card-heading { justify-content: flex-start; }
+.application-class-summary .class-card-footer { margin-top: 12px; }
+.application-screen-status { margin-top: 0; }
+.admissions-section { margin-top: 24px; }
+.admissions-list-heading { margin-bottom: 12px; }
+.admissions-list-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.application-breadcrumb,.create-class-panel,#admissions-classes { scroll-margin-top: 82px; }
+.class-list,.application-list { display: grid; gap: 12px; }
+.class-card { padding: 18px 20px; }
+.class-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.class-card-heading h3 { margin: 0; color: #304139; font: 700 16px/1.4 'Manrope', sans-serif; }
+.class-card-heading>div>span { display: block; margin-top: 4px; color: #76847a; }
+.seat-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.seat-stats>div { min-width: 0; padding: 12px 14px; border: 1px solid #edf0ed; border-radius: 6px; background: #fafbfa; }
+.seat-stats span,.seat-stats strong { display: block; }
+.seat-stats span { color: #718076; }
+.seat-stats strong { margin-top: 5px; color: #2e4036; font: 700 18px 'Manrope', sans-serif; }
+.seat-stats .seat-stat-available { border-color: #dcecdf; background: #f4faf4; }.seat-stats .seat-stat-available strong { color: #3b7c58; }
+.seat-stats .seat-stat-full { border-color: #efddd7; background: #fff8f6; }.seat-stats .seat-stat-full strong { color: #a05243; }
+.class-detail-note { margin-top: 12px; padding: 10px 12px; border-radius: 5px; color: #516258; background: #f4f7f4; line-height: 1.5; }
+.class-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0ed; }
+.class-card-footer>span { display: inline-flex; align-items: center; gap: 8px; color: #617267; }
+.class-card-footer .admission-button { min-width: 150px; }
+.admissions-empty { padding: 18px; border: 1px dashed #d7e0d8; border-radius: 6px; color: #637268; background: rgba(255,255,255,.62); line-height: 1.55; }
+.poll-indicator { flex: 0 0 auto; }
+.application-card { padding: 18px 20px; }
+.application-main { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.application-class-name,.application-id { display: block; }
+.application-class-name { color: #304139; font: 700 16px/1.4 'Manrope', sans-serif; }
+.application-id { margin-top: 4px; color: #7a877e; }
+.status-badge { flex: 0 0 auto; padding: 5px 9px; border: 1px solid; border-radius: 4px; font-weight: 700; }
+.status-held { border-color: #efdcb6; color: #8b6828; background: #fff9eb; }
+.status-confirmed { border-color: #cce4d1; color: #31704a; background: #f1faf3; }
+.status-expired,.status-cancelled { border-color: #e6e5e1; color: #73766f; background: #f6f6f3; }
+.application-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 18px; margin-top: 15px; color: #617067; }
+.application-meta span { display: inline-flex; align-items: center; gap: 8px; }
+.application-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #edf0ed; }
+.payment-note { margin: 12px 2px 0; color: #6b796f; line-height: 1.55; }
+@media (max-width: 720px) {
+  .admissions-content { padding-top: 24px; }
+  .create-class-panel { padding: 18px; }
+  .create-class-form { grid-template-columns: minmax(0, 1fr) 120px; }
+  .create-class-form>.admission-button { grid-column: 1 / -1; }
+  .seat-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .admissions-heading { align-items: flex-start; flex-direction: column; }
+  .admissions-section-title { align-items: flex-start; flex-direction: column; }
+  .identity-controls { align-items: stretch; flex-direction: column; }
+  .identity-controls .admission-button { align-self: flex-start; }
+  .application-form-panel { padding: 18px; }
+  .application-breadcrumb { flex-wrap: wrap; }
+  .create-class-form { grid-template-columns: 1fr; }
+  .create-class-form>.admission-button { grid-column: auto; }
+  .class-card,.application-card { padding: 15px; }
+  .class-card-heading { align-items: flex-start; flex-direction: column; }
+  .admissions-list-actions { width: 100%; }
+  .admissions-list-actions .admission-button { flex: 1 1 auto; }
+  .class-card-footer { align-items: flex-start; flex-direction: column; }
+  .class-card-footer .admission-button { width: 100%; }
+  .application-main { flex-direction: column; }
+  .application-actions .admission-button { flex: 1 1 auto; }
+}

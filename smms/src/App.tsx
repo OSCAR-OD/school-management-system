@@ -10,12 +10,14 @@ import {
   ChevronRight,
   CircleHelp,
   ClipboardCheck,
+  ClipboardList,
   GraduationCap,
   LayoutDashboard,
+  List,
   Menu,
   MoreHorizontal,
+  Plus,
   Search,
-  Settings2,
   Users,
   X,
 } from 'lucide-react'
@@ -33,13 +35,11 @@ import { Button } from './components/ui/button'
 import { Card } from './components/ui/card'
 import { dashboardApi } from './services/api'
 import type { DashboardData } from './data/dashboard'
+import AdmissionsPage from './components/admissions/AdmissionsPage'
 
 const navigation = [
   { label: 'Overview', icon: LayoutDashboard },
-  { label: 'Students', icon: Users },
-  { label: 'Academics', icon: BookOpen },
-  { label: 'Attendance', icon: ClipboardCheck },
-  { label: 'Calendar', icon: CalendarDays },
+  { label: 'Admissions', icon: ClipboardList },
 ]
 
 function App() {
@@ -50,6 +50,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null)
   const [dashboardLoadError, setDashboardLoadError] = useState(false)
+  const [admissionsDestination, setAdmissionsDestination] = useState<'create' | 'classes' | 'applications'>('classes')
 
   useEffect(() => {
     let active = true
@@ -74,6 +75,11 @@ function App() {
   const visibleEvents = (dashboardData?.upcomingEvents ?? []).filter((event) =>
     `${event.title} ${event.detail}`.toLowerCase().includes(normalizedSearch),
   )
+
+  function openAdmissions(destination: 'create' | 'classes' | 'applications') {
+    setAdmissionsDestination(destination)
+    dispatch(setActiveSection('Admissions'))
+  }
 
   return (
     <div className="app-shell">
@@ -100,15 +106,8 @@ function App() {
               onClick={() => { dispatch(setActiveSection(label)); setSidebarOpen(false) }}
             >
               <Icon size={18} strokeWidth={1.8} /><span>{label}</span>
-              {label === 'Attendance' && <span className="nav-count">3</span>}
             </button>
           ))}
-        </nav>
-
-        <div className="nav-label management-label">MANAGEMENT</div>
-        <nav className="primary-nav" aria-label="Management navigation">
-          <button className="nav-item" onClick={() => dispatch(setActiveSection('Reports'))}><Activity size={18} strokeWidth={1.8} /><span>Reports</span></button>
-          <button className="nav-item" onClick={() => dispatch(setActiveSection('Settings'))}><Settings2 size={18} strokeWidth={1.8} /><span>Settings</span></button>
         </nav>
 
         <div className="sidebar-bottom">
@@ -144,7 +143,7 @@ function App() {
           </div>
         </header>
 
-        <div className="content-wrap">
+        {activeSection === 'Admissions' ? <AdmissionsPage initialSection={admissionsDestination} /> : <div className="content-wrap">
           {!dashboardData && <p role="status">{dashboardLoadError ? 'Could not load school overview.' : 'Loading school overview...'}</p>}
           <section className="page-heading">
             <div>
@@ -153,6 +152,24 @@ function App() {
               <p>Here’s what’s happening across your school today.</p>
             </div>
             <Button className="report-button" size="sm"><Activity size={16} />View reports</Button>
+          </section>
+
+          <section className="overview-admissions-shortcuts" aria-label="Admissions shortcuts">
+            <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('create')}>
+              <span className="admissions-shortcut-icon shortcut-create"><Plus size={19} /></span>
+              <span className="admissions-shortcut-copy"><strong>Class তৈরি করুন</strong><small>নতুন class এবং seat count যোগ করুন</small></span>
+              <ChevronRight size={17} />
+            </button>
+            <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('classes')}>
+              <span className="admissions-shortcut-icon shortcut-classes"><List size={19} /></span>
+              <span className="admissions-shortcut-copy"><strong>Class তালিকা</strong><small>সব class ও seat availability দেখুন</small></span>
+              <ChevronRight size={17} />
+            </button>
+            <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('applications')}>
+              <span className="admissions-shortcut-icon shortcut-applications"><ClipboardList size={19} /></span>
+              <span className="admissions-shortcut-copy"><strong>আমার আবেদন</strong><small>এই শিক্ষার্থীর application status দেখুন</small></span>
+              <ChevronRight size={17} />
+            </button>
           </section>
 
           <section className="metrics-grid" aria-label="School statistics">
@@ -239,7 +256,7 @@ function App() {
             </article>
           </section>
           <footer className="page-footer"><span>© 2026 Northfield Academy</span><span>All systems operational <i /></span></footer>
-        </div>
+        </div>}
       </main>
     </div>
   )

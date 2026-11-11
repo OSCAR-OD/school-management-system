@@ -2,10 +2,12 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
 interface DashboardState {
   activeSection: string
+  studentId: string
 }
 
 const initialState: DashboardState = {
   activeSection: 'Overview',
+  studentId: '',
 }
 
 const dashboardSlice = createSlice({
@@ -15,8 +17,11 @@ const dashboardSlice = createSlice({
     setActiveSection(state, action: PayloadAction<string>) {
       state.activeSection = action.payload
     },
+    setStudentId(state, action: PayloadAction<string>) {
+      state.studentId = action.payload
+    },
   },
 })
 
-export const { setActiveSection } = dashboardSlice.actions
+export const { setActiveSection, setStudentId } = dashboardSlice.actions
 export default dashboardSlice.reducer
