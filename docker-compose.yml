@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sms}
+      POSTGRES_USER: ${POSTGRES_USER:-sms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sms_local_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      BACKEND_API_URL: http://0.0.0.0:8080
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sms}:${POSTGRES_PASSWORD:-sms_local_password}@postgres:5432/${POSTGRES_DB:-sms}?sslmode=disable
+      HOLD_DURATION_SECONDS: ${HOLD_DURATION_SECONDS:-600}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:8080}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

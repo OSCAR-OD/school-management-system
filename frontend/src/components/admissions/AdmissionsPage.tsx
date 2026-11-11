@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowDownUp, ArrowLeft, Check, Clock3, Plus, RefreshCw, Trash2, Users, X } from 'lucide-react'
+import { ArrowDownUp, ArrowLeft, Check, Clock3, Plus, RefreshCw, Users, X } from 'lucide-react'
 import {
   admissionsApi,
   fetchAdmissionsData,
@@ -137,31 +137,6 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
       setTotalSeats('')
       await reloadData()
       showToast('success', 'Class created.')
-    } catch (error) {
-      showToast('error', getAdmissionsErrorMessage(error))
-    } finally {
-      setWorking(null)
-    }
-  }
-
-  async function deleteClass(schoolClass: SchoolClass) {
-    const confirmed = window.confirm(
-      `Delete "${schoolClass.name}"? Class history will be retained. Classes with held or confirmed applications cannot be deleted.`,
-    )
-    if (!confirmed) return
-
-    setWorking(`delete-class:${schoolClass.id}`)
-    setToast(null)
-    try {
-      await admissionsApi.deleteClass(schoolClass.id)
-      setClassDetails((current) => {
-        const next = { ...current }
-        delete next[schoolClass.id]
-        return next
-      })
-      if (expandedClassId === schoolClass.id) setExpandedClassId(null)
-      await reloadData()
-      showToast('success', 'Class deleted.')
     } catch (error) {
       showToast('error', getAdmissionsErrorMessage(error))
     } finally {

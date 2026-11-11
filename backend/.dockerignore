@@ -1,0 +1,4 @@
+bin/
+obj/
+Migrations/bin/
+Migrations/obj/
