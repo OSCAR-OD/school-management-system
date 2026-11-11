@@ -18,6 +18,8 @@ interface MockState {
   holds: MockHold[]
 }
 
+const STORAGE_KEY = 'smms.admissions.mockState'
+
 export class MockApiError extends Error {
   readonly status: number
 
@@ -32,7 +34,44 @@ function createInitialState(): MockState {
   return { classes: initialClasses.map((item) => ({ ...item })), holds: [] }
 }
 
-let memoryState = createInitialState()
+function isMockState(value: unknown): value is MockState {
+  if (!value || typeof value !== 'object') return false
+  const state = value as Partial<MockState>
+  return Array.isArray(state.classes)
+    && state.classes.every((schoolClass) => schoolClass
+      && typeof schoolClass.id === 'string'
+      && typeof schoolClass.name === 'string'
+      && Number.isSafeInteger(schoolClass.totalSeats)
+      && Number.isSafeInteger(schoolClass.heldSeats)
+      && Number.isSafeInteger(schoolClass.confirmedSeats)
+      && Number.isSafeInteger(schoolClass.availableSeats))
+    && Array.isArray(state.holds)
+    && state.holds.every((hold) => hold
+      && typeof hold.holdId === 'string'
+      && typeof hold.classId === 'string'
+      && typeof hold.className === 'string'
+      && typeof hold.studentId === 'string'
+      && ['HELD', 'CONFIRMED', 'EXPIRED', 'CANCELLED'].includes(hold.status)
+      && typeof hold.expiresAt === 'string')
+}
+
+function loadState(): MockState {
+  if (typeof window === 'undefined') return createInitialState()
+
+  try {
+    const storedState = window.localStorage.getItem(STORAGE_KEY)
+    if (storedState) {
+      const parsedState: unknown = JSON.parse(storedState)
+      if (isMockState(parsedState)) return parsedState
+    }
+  } catch {
+    return createInitialState()
+  }
+
+  return createInitialState()
+}
+
+let memoryState = loadState()
 
 function getState(): MockState {
   return memoryState
@@ -40,6 +79,13 @@ function getState(): MockState {
 
 function saveState(state: MockState) {
   memoryState = state
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    }
+  } catch {
+    return
+  }
 }
 
 function updateExpiredHolds(state: MockState) {
@@ -83,6 +129,16 @@ function holdDetails(hold: MockHold) {
   return {
     holdId: hold.holdId,
     classId: hold.classId,
+    status: hold.status,
+    expiresAt: hold.expiresAt,
+  }
+}
+
+function createdHoldDetails(hold: MockHold) {
+  return {
+    holdId: hold.holdId,
+    classId: hold.classId,
+    studentId: hold.studentId,
     status: hold.status,
     expiresAt: hold.expiresAt,
   }
@@ -148,7 +204,7 @@ export const admissionsMockApi = {
     schoolClass.availableSeats -= 1
     state.holds.unshift(hold)
     saveState(state)
-    return holdDetails(hold)
+    return createdHoldDetails(hold)
   },
 
   async getHold(holdId: string) {

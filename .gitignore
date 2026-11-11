@@ -1,0 +1,13 @@
+# Environment files may contain credentials.
+.env
+.env.*
+!.env.example
+
+# Local dependencies and build output.
+**/node_modules/
+**/dist/
+**/bin/
+**/obj/
+
+# Per-user IDE settings.
+.vscode/settings.json

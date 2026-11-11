@@ -1,0 +1,281 @@
+{
+  "info": {
+    "_postman_id": "bc48574f-5e16-44f4-b1e7-580ce6680262",
+    "name": "SMMS Admissions API",
+    "description": "Seat availability, student holds, confirmation, and cancellation for the local SMMS backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "studentId", "value": "20152691234567890" },
+    { "key": "classId", "value": "" },
+    { "key": "holdId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Classes",
+      "item": [
+        {
+          "name": "1. Create class",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Created class (201)', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('id');",
+                  "pm.expect(body.id).to.match(/^c_\\d{4}$/);",
+                  "pm.expect(body).to.have.property('name');",
+                  "pm.expect(body).to.have.property('totalSeats', 5);",
+                  "pm.collectionVariables.set('classId', body.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Class 6 - Morning Shift\",\n  \"totalSeats\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/classes"
+          }
+        },
+        {
+          "name": "2. List classes with seat counts",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Classes listed (200)', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.be.an('array');",
+                  "if (pm.collectionVariables.get('classId')) {",
+                  "  const schoolClass = body.find(item => item.id === pm.collectionVariables.get('classId'));",
+                  "  pm.expect(schoolClass).to.have.property('heldSeats');",
+                  "  pm.expect(schoolClass).to.have.property('confirmedSeats');",
+                  "  pm.expect(schoolClass).to.have.property('availableSeats');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/classes"
+          }
+        },
+        {
+          "name": "3. Get class seat status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Class seat status returned (200)', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('id', pm.collectionVariables.get('classId'));",
+                  "pm.expect(body).to.have.property('availableSeats');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/classes/{{classId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student holds",
+      "item": [
+        {
+          "name": "4. Create seat hold",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Hold created (201)', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('holdId');",
+                  "pm.expect(body.holdId).to.match(/^h_\\d{4}$/);",
+                  "pm.expect(body).to.have.property('classId', pm.collectionVariables.get('classId'));",
+                  "pm.expect(body).to.have.property('studentId', pm.collectionVariables.get('studentId'));",
+                  "pm.expect(body).to.have.property('status', 'HELD');",
+                  "pm.expect(body).to.have.property('expiresAt');",
+                  "pm.collectionVariables.set('holdId', body.holdId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Student-Id", "value": "{{studentId}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/classes/{{classId}}/holds"
+          }
+        },
+        {
+          "name": "5. Get hold status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Hold status returned (200)', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('holdId', pm.collectionVariables.get('holdId'));",
+                  "pm.expect(body).to.have.property('status');",
+                  "pm.expect(body).to.have.property('expiresAt');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/holds/{{holdId}}"
+          }
+        },
+        {
+          "name": "5a. Reject a duplicate active application (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Duplicate active application is rejected (409)', function () { pm.response.to.have.status(409); });",
+                  "pm.expect(pm.response.json()).to.have.property('error');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "X-Student-Id", "value": "{{studentId}}" }],
+            "url": "{{baseUrl}}/classes/{{classId}}/holds"
+          }
+        },
+        {
+          "name": "6. Confirm admission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Hold confirmed (200)', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.have.property('holdId', pm.collectionVariables.get('holdId'));",
+                  "pm.expect(body).to.have.property('status', 'CONFIRMED');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-Student-Id", "value": "{{studentId}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/holds/{{holdId}}/confirm"
+          }
+        },
+        {
+          "name": "6a. Confirm again (idempotent)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Repeated confirmation remains successful (200)', function () { pm.response.to.have.status(200); });",
+                  "pm.expect(pm.response.json()).to.have.property('status', 'CONFIRMED');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "X-Student-Id", "value": "{{studentId}}" }],
+            "url": "{{baseUrl}}/holds/{{holdId}}/confirm"
+          }
+        },
+        {
+          "name": "7. List my applications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Student applications listed (200)', function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body).to.be.an('array');",
+                  "const hold = body.find(item => item.holdId === pm.collectionVariables.get('holdId'));",
+                  "pm.expect(hold).to.have.property('className');",
+                  "pm.expect(hold).to.have.property('status', 'CONFIRMED');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "X-Student-Id", "value": "{{studentId}}" }],
+            "url": "{{baseUrl}}/me/holds"
+          }
+        },
+        {
+          "name": "8. Cancel application (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Application cancelled (204)', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "X-Student-Id", "value": "{{studentId}}" }],
+            "url": "{{baseUrl}}/holds/{{holdId}}"
+          }
+        },
+        {
+          "name": "9. Delete class (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Class deleted (204)', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/classes/{{classId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

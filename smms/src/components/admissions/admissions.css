@@ -41,6 +41,7 @@
 .class-list,.application-list { display: grid; gap: 12px; }
 .class-card { padding: 18px 20px; }
 .class-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.class-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .class-card-heading h3 { margin: 0; color: #304139; font: 700 16px/1.4 'Manrope', sans-serif; }
 .class-card-heading>div>span { display: block; margin-top: 4px; color: #76847a; }
 .seat-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }

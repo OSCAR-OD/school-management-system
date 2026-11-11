@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { admissionsMockApi, MockApiError } from '../data/admissionsMock'
 
 export type HoldStatus = 'HELD' | 'CONFIRMED' | 'EXPIRED' | 'CANCELLED'
 
@@ -20,6 +19,20 @@ export interface StudentHold {
   expiresAt: string
 }
 
+export interface CreatedClass {
+  id: string
+  name: string
+  totalSeats: number
+}
+
+export interface CreatedHold {
+  holdId: string
+  classId: string
+  studentId: string
+  status: HoldStatus
+  expiresAt: string
+}
+
 interface HoldDetails {
   holdId: string
   classId: string
@@ -33,34 +46,39 @@ const client = axios.create({
   timeout: 10_000,
 })
 
-export const USE_MOCK_DATA = true
-
 function studentHeaders(studentId: string) {
   return { headers: { 'X-Student-Id': studentId } }
 }
 
+function requireArray<T>(data: unknown, resourceName: string): T[] {
+  if (!Array.isArray(data)) {
+    throw new Error(`The server returned invalid ${resourceName} data.`)
+  }
+  return data
+}
+
 export const admissionsApi = {
   async listClasses() {
-    if (USE_MOCK_DATA) return admissionsMockApi.listClasses()
-    const response = await client.get<SchoolClass[]>('/classes')
-    return response.data
+    const response = await client.get<unknown>('/classes')
+    return requireArray<SchoolClass>(response.data, 'class')
   },
 
   async getClass(classId: string) {
-    if (USE_MOCK_DATA) return admissionsMockApi.getClass(classId)
     const response = await client.get<SchoolClass>(`/classes/${encodeURIComponent(classId)}`)
     return response.data
   },
 
   async createClass(name: string, totalSeats: number) {
-    if (USE_MOCK_DATA) return admissionsMockApi.createClass(name, totalSeats)
-    const response = await client.post<SchoolClass>('/classes', { name, totalSeats })
+    const response = await client.post<CreatedClass>('/classes', { name, totalSeats })
     return response.data
   },
 
+  async deleteClass(classId: string) {
+    await client.delete(`/classes/${encodeURIComponent(classId)}`)
+  },
+
   async createHold(classId: string, studentId: string) {
-    if (USE_MOCK_DATA) return admissionsMockApi.createHold(classId, studentId)
-    const response = await client.post<HoldDetails>(
+    const response = await client.post<CreatedHold>(
       `/classes/${encodeURIComponent(classId)}/holds`,
       undefined,
       studentHeaders(studentId),
@@ -69,13 +87,11 @@ export const admissionsApi = {
   },
 
   async getHold(holdId: string) {
-    if (USE_MOCK_DATA) return admissionsMockApi.getHold(holdId)
     const response = await client.get<HoldDetails>(`/holds/${encodeURIComponent(holdId)}`)
     return response.data
   },
 
   async confirmHold(holdId: string, studentId: string) {
-    if (USE_MOCK_DATA) return admissionsMockApi.confirmHold(holdId, studentId)
     const response = await client.post<{ holdId: string; status: HoldStatus }>(
       `/holds/${encodeURIComponent(holdId)}/confirm`,
       undefined,
@@ -85,22 +101,24 @@ export const admissionsApi = {
   },
 
   async cancelHold(holdId: string, studentId: string) {
-    if (USE_MOCK_DATA) return admissionsMockApi.cancelHold(holdId, studentId)
     await client.delete(`/holds/${encodeURIComponent(holdId)}`, studentHeaders(studentId))
   },
 
   async listMyHolds(studentId: string) {
-    if (USE_MOCK_DATA) return admissionsMockApi.listMyHolds(studentId)
-    const response = await client.get<StudentHold[]>('/me/holds', studentHeaders(studentId))
-    return response.data
+    const response = await client.get<unknown>('/me/holds', studentHeaders(studentId))
+    return requireArray<StudentHold>(response.data, 'application')
   },
 }
 
 export function getAdmissionsErrorMessage(error: unknown) {
-  const status = axios.isAxiosError(error)
-    ? error.response?.status
-    : error instanceof MockApiError
-      ? error.status
+  const status = axios.isAxiosError(error) ? error.response?.status : undefined
+  const responseBody: unknown = axios.isAxiosError(error) ? error.response?.data : undefined
+  const responseMessage =
+    typeof responseBody === 'object' &&
+    responseBody !== null &&
+    'error' in responseBody &&
+    typeof responseBody.error === 'string'
+      ? responseBody.error
       : undefined
   if (!status) {
     return axios.isAxiosError(error)
@@ -108,10 +126,13 @@ export function getAdmissionsErrorMessage(error: unknown) {
       : 'The request could not be completed. Please try again.'
   }
   if (status === 409) {
-    return 'No seats are available, or this student already has an active application for this class.'
+    return responseMessage ?? 'No seats are available, or this student already has an active application for this class.'
   }
   if (status === 410) {
     return 'This application has expired. The seat is no longer being held.'
+  }
+  if (status === 403) {
+    return 'This application belongs to a different student. Check the student ID and try again.'
   }
   if (status === 400 || status === 422) {
     return 'Check the information and try again.'
@@ -131,6 +152,10 @@ export async function fetchAdmissionsData(studentId: string) {
   const holds = /^\d{17}$/.test(studentId)
     ? await admissionsApi.listMyHolds(studentId)
     : []
+
+  if (!Array.isArray(classes) || !Array.isArray(holds)) {
+    throw new Error('The server returned invalid admissions data.')
+  }
 
   return { classes, holds }
 }

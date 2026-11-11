@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:8080
+@studentId = 20152691234567890
+@classId = replace-after-creating-a-class
+@holdId = replace-after-creating-a-hold
+
+### Create a class
+POST {{baseUrl}}/classes
+Content-Type: application/json
+
+{
+  "name": "Class 6 - Morning Shift",
+  "totalSeats": 120
+}
+
+### List classes and seat counts
+GET {{baseUrl}}/classes
+Accept: application/json
+
+### Get one class
+GET {{baseUrl}}/classes/{{classId}}
+Accept: application/json
+
+### Create a seat hold
+POST {{baseUrl}}/classes/{{classId}}/holds
+X-Student-Id: {{studentId}}
+
+### Get hold status
+GET {{baseUrl}}/holds/{{holdId}}
+Accept: application/json
+
+### Confirm admission
+POST {{baseUrl}}/holds/{{holdId}}/confirm
+X-Student-Id: {{studentId}}
+
+### Cancel application
+DELETE {{baseUrl}}/holds/{{holdId}}
+X-Student-Id: {{studentId}}
+
+### List this student's applications
+GET {{baseUrl}}/me/holds
+X-Student-Id: {{studentId}}
+Accept: application/json

@@ -5,9 +5,20 @@ interface DashboardState {
   studentId: string
 }
 
+function getStoredStudentId() {
+  if (typeof window === 'undefined') return ''
+
+  try {
+    const studentId = window.localStorage.getItem('smms.studentId') ?? ''
+    return /^\d{17}$/.test(studentId) ? studentId : ''
+  } catch {
+    return ''
+  }
+}
+
 const initialState: DashboardState = {
   activeSection: 'Overview',
-  studentId: '',
+  studentId: getStoredStudentId(),
 }
 
 const dashboardSlice = createSlice({

@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowDownUp, ArrowLeft, Check, Clock3, Plus, RefreshCw, Users, X } from 'lucide-react'
+import { ArrowDownUp, ArrowLeft, Check, Clock3, Plus, RefreshCw, Trash2, Users, X } from 'lucide-react'
 import {
   admissionsApi,
   fetchAdmissionsData,
@@ -30,6 +30,14 @@ function formatRemaining(seconds: number) {
 function displayStatus(hold: StudentHold, now: number) {
   if (hold.status === 'HELD' && remainingSeconds(hold.expiresAt, now) === 0) return 'EXPIRED'
   return hold.status
+}
+
+function persistStudentId(studentId: string) {
+  try {
+    window.localStorage.setItem('smms.studentId', studentId)
+  } catch {
+    return
+  }
 }
 
 function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: AdmissionsDestination }) {
@@ -136,6 +144,31 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
     }
   }
 
+  async function deleteClass(schoolClass: SchoolClass) {
+    const confirmed = window.confirm(
+      `Delete "${schoolClass.name}"? Class history will be retained. Classes with held or confirmed applications cannot be deleted.`,
+    )
+    if (!confirmed) return
+
+    setWorking(`delete-class:${schoolClass.id}`)
+    setToast(null)
+    try {
+      await admissionsApi.deleteClass(schoolClass.id)
+      setClassDetails((current) => {
+        const next = { ...current }
+        delete next[schoolClass.id]
+        return next
+      })
+      if (expandedClassId === schoolClass.id) setExpandedClassId(null)
+      await reloadData()
+      showToast('success', 'Class deleted.')
+    } catch (error) {
+      showToast('error', getAdmissionsErrorMessage(error))
+    } finally {
+      setWorking(null)
+    }
+  }
+
   async function submitApplication(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!applyClass) return
@@ -153,6 +186,7 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
     setWorking(applyClass.id)
     setToast(null)
     dispatch(saveStudentId(normalizedId))
+    persistStudentId(normalizedId)
     try {
       const createdHold = await admissionsApi.createHold(applyClass.id, normalizedId)
       await reloadData(normalizedId)
@@ -314,7 +348,7 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
 
             return (
               <article className="panel class-card" key={schoolClass.id}>
-                <div className="class-card-heading"><div><h3>{schoolClass.name}</h3><span>Class ID: {schoolClass.id}</span></div><button className="admission-button admission-button-secondary" onClick={() => void toggleClassDetails(schoolClass.id)} disabled={working === `class:${schoolClass.id}`}><ArrowDownUp size={17} />{isExpanded ? 'Hide details' : 'Seat details'}</button></div>
+                <div className="class-card-heading"><div><h3>{schoolClass.name}</h3><span>Class ID: {schoolClass.id}</span></div><div className="class-card-actions"><button type="button" className="admission-button admission-button-secondary" onClick={() => void toggleClassDetails(schoolClass.id)} disabled={working === `class:${schoolClass.id}`}><ArrowDownUp size={17} />{isExpanded ? 'Hide details' : 'Seat details'}</button><button type="button" className="admission-button admission-button-danger" onClick={() => void deleteClass(schoolClass)} disabled={working === `delete-class:${schoolClass.id}`}><Trash2 size={17} />Delete class</button></div></div>
                 <div className="seat-stats">
                   <div><span>Total seats</span><strong>{schoolClass.totalSeats}</strong></div>
                   <div><span>On hold</span><strong>{schoolClass.heldSeats}</strong></div>
