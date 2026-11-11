@@ -9,14 +9,9 @@
 
 ## Configuration
 
-এই folder-এ `.env.example` কপি করে `.env` বানান। `.env` Git-এ track হয় না।
+Repository root-এ থাকা `.env.example` কপি করে root-এ `.env` বানান। Backend এবং frontend একই root `.env` ব্যবহার করে; `.env` Git-এ track হয় না।
 
-```env
-DATABASE_URL=postgresql://USER:PASSWORD@HOST/neondb?sslmode=require
-HOLD_DURATION_SECONDS=600
-```
-
-`DATABASE_URL` PostgreSQL URI (`postgresql://` বা `postgres://`) অথবা Npgsql connection string হতে পারে। Environment-এ সরাসরি দেয়া value `.env`-এর value-কে override করবে। `HOLD_DURATION_SECONDS` না দিলে 600 সেকেন্ড ধরা হবে; শূন্য বা ঋণাত্মক value গ্রহণ করা হবে না।
+`BACKEND_API_URL` একই সঙ্গে frontend-এর API address এবং backend-এর listening address নির্ধারণ করে। Frontend-এর Vite config repository-root `.env` পড়ে। `DATABASE_URL` PostgreSQL URI (`postgresql://` বা `postgres://`) অথবা Npgsql connection string হতে পারে। Environment-এ সরাসরি দেয়া value `.env`-এর value-কে override করবে। `HOLD_DURATION_SECONDS` না দিলে 600 সেকেন্ড ধরা হবে; শূন্য বা ঋণাত্মক value গ্রহণ করা হবে না।
 
 ## চালু করা
 
@@ -26,7 +21,7 @@ Repository root থেকে:
 dotnet run --project .\smms-backend\smms-backend.csproj --launch-profile http
 ```
 
-API চলবে `http://localhost:8080`-এ। Backend folder থেকে চালালে:
+API address root `.env`-এর `BACKEND_API_URL` থেকে নির্ধারিত হবে। Backend folder থেকে চালালে:
 
 ```powershell
 dotnet run --launch-profile http
@@ -36,7 +31,7 @@ dotnet run --launch-profile http
 
 ## API ও Postman
 
-Postman-এ `postman\Admissions API.postman_collection.json` import করুন। Collection variable `baseUrl` default `http://localhost:8080`; `studentId` অবশ্যই ১৭টি সংখ্যা হতে হবে। Collection Runner-এ সব request উপর থেকে নিচে চালালে class তৈরি, seat hold, hold status দেখা, admission confirm, নিজের application দেখা, এবং application cancel পরীক্ষা হবে। প্রতিটি hold/confirm/cancel/নিজের application request-এ `X-Student-Id` header লাগে।
+Postman-এ `postman\Admissions API.postman_collection.json` import করুন। Collection variable `baseUrl`-এ root `.env`-এর `BACKEND_API_URL` value দিন; `studentId` অবশ্যই ১৭টি সংখ্যা হতে হবে। Collection Runner-এ সব request উপর থেকে নিচে চালালে class তৈরি, seat hold, hold status দেখা, admission confirm, নিজের application দেখা, application cancel এবং class delete পরীক্ষা হবে। প্রতিটি hold/confirm/cancel/নিজের application request-এ `X-Student-Id` header লাগে।
 
 | Method | Path | ফলাফল |
 |---|---|---|

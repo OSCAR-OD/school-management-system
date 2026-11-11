@@ -2,11 +2,11 @@
   "info": {
     "_postman_id": "bc48574f-5e16-44f4-b1e7-580ce6680262",
     "name": "SMMS Admissions API",
-    "description": "Seat availability, student holds, confirmation, and cancellation for the local SMMS backend.",
+    "description": "Set the baseUrl collection variable from BACKEND_API_URL in the repository-root .env before sending requests. Seat availability, student holds, confirmation, cancellation, and class deletion.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "baseUrl", "value": "" },
     { "key": "studentId", "value": "20152691234567890" },
     { "key": "classId", "value": "" },
     { "key": "holdId", "value": "" }

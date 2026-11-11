@@ -41,7 +41,7 @@ interface HoldDetails {
 }
 
 const client = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: import.meta.env.BACKEND_API_URL,
   headers: { 'Content-Type': 'application/json' },
   timeout: 10_000,
 })

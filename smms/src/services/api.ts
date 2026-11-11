@@ -5,7 +5,7 @@ const USE_MOCK_DATA = true
 
 export const api = axios.create({
   // Live API: set USE_MOCK_DATA to false, uncomment the env URL, and comment out the mock baseURL below.
-  // baseURL: import.meta.env.VITE_API_URL,
+  // baseURL: import.meta.env.BACKEND_API_URL,
   baseURL: '/api', // Mock service mode
   timeout: 15_000,
   headers: {

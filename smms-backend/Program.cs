@@ -2,13 +2,21 @@ using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 
 var projectDirectory = ResolveProjectDirectory();
-LoadDotEnv(Path.Combine(projectDirectory, ".env"));
+LoadDotEnv(Path.GetFullPath(Path.Combine(projectDirectory, "..", ".env")));
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
     ContentRootPath = projectDirectory
 });
+var backendApiUrl = builder.Configuration["BACKEND_API_URL"];
+if (!Uri.TryCreate(backendApiUrl, UriKind.Absolute, out var backendUri) ||
+    (backendUri.Scheme != Uri.UriSchemeHttp && backendUri.Scheme != Uri.UriSchemeHttps))
+{
+    throw new InvalidOperationException("BACKEND_API_URL must be an absolute HTTP or HTTPS URL.");
+}
+
+builder.WebHost.UseUrls(backendApiUrl);
 builder.Services.AddOpenApi();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.SetIsOriginAllowed(origin =>
@@ -20,7 +28,7 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
 var databaseUrl = builder.Configuration["DATABASE_URL"];
 if (string.IsNullOrWhiteSpace(databaseUrl))
 {
-    throw new InvalidOperationException("DATABASE_URL is required. Set it in smms-backend/.env or the process environment.");
+    throw new InvalidOperationException("DATABASE_URL is required. Set it in the repository-root .env file or the process environment.");
 }
 
 var holdDurationSeconds = 600;
@@ -146,8 +154,22 @@ static string ResolveProjectDirectory()
         AppContext.BaseDirectory
     };
 
-    return candidates.FirstOrDefault(path =>
-        Directory.Exists(Path.Combine(path, "Migrations"))) ?? currentDirectory;
+    foreach (var candidate in candidates)
+    {
+        DirectoryInfo? directory = new(Path.GetFullPath(candidate));
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "smms-backend.csproj")) &&
+                Directory.Exists(Path.Combine(directory.FullName, "Migrations")))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+    }
+
+    throw new DirectoryNotFoundException("Could not locate the smms-backend project directory.");
 }
 
 static void LoadDotEnv(string path)

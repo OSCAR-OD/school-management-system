@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:8080
+@baseUrl = {{BACKEND_API_URL}}
 @studentId = 20152691234567890
 @classId = replace-after-creating-a-class
 @holdId = replace-after-creating-a-hold
