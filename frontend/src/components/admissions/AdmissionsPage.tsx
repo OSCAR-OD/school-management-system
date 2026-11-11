@@ -40,7 +40,7 @@ function persistStudentId(studentId: string) {
   }
 }
 
-function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: AdmissionsDestination }) {
+function AdmissionsPage({ role, initialSection = 'classes' }: { role: 'guardian' | 'admin'; initialSection?: AdmissionsDestination }) {
   const dispatch = useAppDispatch()
   const studentId = useAppSelector((state) => state.dashboard.studentId)
   const [studentIdInput, setStudentIdInput] = useState(studentId)
@@ -302,19 +302,19 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
         </article>
       </section> : screen === 'classes' ? <>
 
-        <section id="admissions-create" className="panel create-class-panel">
+        {role === 'admin' && <section id="admissions-create" className="panel create-class-panel">
           <div className="admissions-section-title"><div><h2>Create a class</h2><p>Create a separate class and seat count for each shift.</p></div></div>
           <form className="create-class-form" onSubmit={createClass}>
             <label className="admission-field"><span>Class name</span><input value={className} onChange={(event) => setClassName(event.target.value)} placeholder="e.g. Class 6 - Morning Shift" maxLength={100} /></label>
             <label className="admission-field seats-field"><span>Total seats</span><input type="number" min="1" step="1" value={totalSeats} onChange={(event) => setTotalSeats(event.target.value)} placeholder="120" /></label>
             <button type="submit" className="admission-button admission-button-primary" disabled={working === 'create-class'}><Plus size={18} />Create class</button>
           </form>
-        </section>
+        </section>}
 
         <section id="admissions-classes" className="admissions-section">
-          <div className="admissions-section-title admissions-list-heading"><div><h2>Classes</h2><p>{classes.length} {classes.length === 1 ? 'class' : 'classes'}</p></div><div className="admissions-list-actions"><button className="admission-button admission-button-secondary" onClick={() => setScreen('applications')}><Users size={17} />আমার আবেদন</button><button className="admission-button admission-button-secondary" onClick={() => void reloadData().catch((error) => showToast('error', getAdmissionsErrorMessage(error)))}><RefreshCw size={17} />Refresh</button></div></div>
+          <div className="admissions-section-title admissions-list-heading"><div><h2>Classes</h2><p>{classes.length} {classes.length === 1 ? 'class' : 'classes'}</p></div><div className="admissions-list-actions">{role === 'guardian' && <button className="admission-button admission-button-secondary" onClick={() => setScreen('applications')}><Users size={17} />আমার আবেদন</button>}<button className="admission-button admission-button-secondary" onClick={() => void reloadData().catch((error) => showToast('error', getAdmissionsErrorMessage(error)))}><RefreshCw size={17} />Refresh</button></div></div>
           {loading && <div className="admissions-empty">Loading classes...</div>}
-          {!loading && classes.length === 0 && !loadFailed && <div className="admissions-empty">No classes yet. Create the first class using the form above.</div>}
+          {!loading && classes.length === 0 && !loadFailed && <div className="admissions-empty">{role === 'admin' ? 'No classes yet. Create the first class using the form above.' : 'No classes are available right now.'}</div>}
           <div className="class-list">
             {classes.map((schoolClass) => {
               const details = classDetails[schoolClass.id]
@@ -337,7 +337,7 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
                     <div className={schoolClass.availableSeats === 0 ? 'seat-stat-full' : 'seat-stat-available'}><span>Available</span><strong>{schoolClass.availableSeats}</strong></div>
                   </div>
                   {isExpanded && <div className="class-detail-note">Latest seat count: {currentClass.heldSeats} on hold, {currentClass.confirmedSeats} confirmed, and {currentClass.availableSeats} available.</div>}
-                  <div className="class-card-footer"><span><Users size={17} />{schoolClass.availableSeats > 0 ? `${schoolClass.availableSeats} seats available` : 'No seats available'}</span><button className="admission-button admission-button-primary" onClick={() => { setStudentIdInput(studentId); setActiveHoldId(null); setApplyClass(schoolClass); setScreen('apply') }} disabled={schoolClass.availableSeats < 1 || working === schoolClass.id}><Plus size={18} />আবেদন করুন</button></div>
+                  <div className="class-card-footer"><span><Users size={17} />{schoolClass.availableSeats > 0 ? `${schoolClass.availableSeats} seats available` : 'No seats available'}</span>{role === 'guardian' && <button className="admission-button admission-button-primary" onClick={() => { setStudentIdInput(studentId); setActiveHoldId(null); setApplyClass(schoolClass); setScreen('apply') }} disabled={schoolClass.availableSeats < 1 || working === schoolClass.id}><Plus size={18} />আবেদন করুন</button>}</div>
                 </article>
               )
             })}

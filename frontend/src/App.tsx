@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   CalendarDays,
   ChevronDown,
@@ -20,15 +20,55 @@ const navigation = [
   { label: 'Admissions', icon: ClipboardList },
 ]
 
+type UserRole = 'guardian' | 'admin'
+
+function getRoleFromPath(pathname: string): UserRole | null {
+  const path = pathname.replace(/\/+$/, '')
+  return path === '/guardian' || path === '/admin' ? path.slice(1) as UserRole : null
+}
+
 function App() {
   const dispatch = useAppDispatch()
   const activeSection = useAppSelector((state) => state.dashboard.activeSection)
+  const [role, setRole] = useState<UserRole | null>(() => getRoleFromPath(window.location.pathname))
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [admissionsDestination, setAdmissionsDestination] = useState<'create' | 'classes' | 'applications'>('classes')
+
+  useEffect(() => {
+    function syncRoleWithPath() {
+      setRole(getRoleFromPath(window.location.pathname))
+    }
+
+    window.addEventListener('popstate', syncRoleWithPath)
+    return () => window.removeEventListener('popstate', syncRoleWithPath)
+  }, [])
+
+  function selectRole(nextRole: UserRole) {
+    window.history.pushState({}, '', `/${nextRole}`)
+    dispatch(setActiveSection('Overview'))
+    setRole(nextRole)
+  }
 
   function openAdmissions(destination: 'create' | 'classes' | 'applications') {
     setAdmissionsDestination(destination)
     dispatch(setActiveSection('Admissions'))
+  }
+
+  if (!role) {
+    return (
+      <main className="role-picker">
+        <section className="role-picker-content" aria-labelledby="role-picker-title">
+          <div className="role-picker-brand"><GraduationCap size={22} />SMMS</div>
+          <p className="role-picker-eyebrow">SCHOOL MANAGEMENT SYSTEM</p>
+          <h1 id="role-picker-title">Select a role</h1>
+          <p className="role-picker-description">To use this School Management System</p>
+          <div className="role-picker-actions">
+            <button type="button" onClick={() => selectRole('guardian')}>অভিভাবক</button>
+            <button type="button" onClick={() => selectRole('admin')}>অ্যাডমিন</button>
+          </div>
+        </section>
+      </main>
+    )
   }
 
   return (
@@ -74,7 +114,7 @@ function App() {
           </div>
         </header>
 
-        {activeSection === 'Admissions' ? <AdmissionsPage initialSection={admissionsDestination} /> : <div className="content-wrap">
+        {activeSection === 'Admissions' ? <AdmissionsPage role={role} initialSection={admissionsDestination} /> : <div className="content-wrap">
           <section className="page-heading">
             <div>
               <div className="eyebrow"><span className="eyebrow-line" />SCHOOL MANAGEMENT</div>
@@ -84,21 +124,21 @@ function App() {
           </section>
 
           <section className="overview-admissions-shortcuts" aria-label="Admissions shortcuts">
-            <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('create')}>
+            {role === 'admin' && <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('create')}>
               <span className="admissions-shortcut-icon shortcut-create"><Plus size={19} /></span>
               <span className="admissions-shortcut-copy"><strong>Class তৈরি করুন</strong><small>নতুন class এবং seat count যোগ করুন</small></span>
               <ChevronRight size={17} />
-            </button>
+            </button>}
             <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('classes')}>
               <span className="admissions-shortcut-icon shortcut-classes"><List size={19} /></span>
               <span className="admissions-shortcut-copy"><strong>Class তালিকা</strong><small>সব class ও seat availability দেখুন</small></span>
               <ChevronRight size={17} />
             </button>
-            <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('applications')}>
+            {role === 'guardian' && <button type="button" className="admissions-shortcut" onClick={() => openAdmissions('applications')}>
               <span className="admissions-shortcut-icon shortcut-applications"><ClipboardList size={19} /></span>
               <span className="admissions-shortcut-copy"><strong>আমার আবেদন</strong><small>এই শিক্ষার্থীর application status দেখুন</small></span>
               <ChevronRight size={17} />
-            </button>
+            </button>}
           </section>
 
           <div className="admissions-empty" role="status">

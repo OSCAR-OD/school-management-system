@@ -2,6 +2,24 @@
 
 SMMS includes an admissions workspace, a React frontend, a .NET API, and a PostgreSQL database. Follow the numbered steps below after cloning the repository.
 
+## Screenshots
+
+| Role selection | Guardian overview |
+|---|---|
+| <img src="helping-images/1.png" alt="Role selection screen" width="480"> | <img src="helping-images/2.png" alt="Guardian overview" width="480"> |
+
+| Guardian class list | Guardian application |
+|---|---|
+| <img src="helping-images/3.png" alt="Guardian class list" width="480"> | <img src="helping-images/4.png" alt="Guardian application form" width="480"> |
+
+| Guardian applications | Admin overview |
+|---|---|
+| <img src="helping-images/5.png" alt="Guardian applications" width="480"> | <img src="helping-images/admin%201.png" alt="Admin overview" width="480"> |
+
+| Admin class management | Admin classes |
+|---|---|
+| <img src="helping-images/admin%202.png" alt="Admin class management" width="480"> | <img src="helping-images/admin%203.png" alt="Admin classes" width="480"> |
+
 ## Installation and Startup
 
 1. **Install the prerequisites:** Install Git and Docker Desktop with Docker Compose, then start Docker Desktop. For running the source code outside Docker, also install Node.js/npm, the .NET 11 SDK, and PostgreSQL.
