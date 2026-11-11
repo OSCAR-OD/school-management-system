@@ -18,7 +18,7 @@ Repository root-এ থাকা `.env.example` কপি করে root-এ `.e
 Repository root থেকে:
 
 ```powershell
-dotnet run --project .\smms-backend\smms-backend.csproj --launch-profile http
+dotnet run --project .\backend\backend.csproj --launch-profile http
 ```
 
 API address root `.env`-এর `BACKEND_API_URL` থেকে নির্ধারিত হবে। Backend folder থেকে চালালে:
@@ -58,4 +58,4 @@ Error response-এ JSON `{ "error": "..." }` থাকে। নতুন class-
 
 ## Concurrency ও data integrity
 
-Seat count পরীক্ষা এবং hold insert একই PostgreSQL transaction-এ হয় এবং transaction-scoped advisory lock দিয়ে serialize করা হয়—একাধিক API instance থেকেও seat oversell হয় না। একই class/student-এর জন্য partial unique index-ও একটির বেশি active (`HELD`/`CONFIRMED`) application আটকায়। Confirm একই hold-এ পুনরায় এলে idempotent response দেয়, seat দ্বিতীয়বার গণনা হয় না। Migration ও API code সবই `smms-backend` folder-এ আছে; Docker/Compose configuration এই setup-এর অংশ নয়।
+Seat count পরীক্ষা এবং hold insert একই PostgreSQL transaction-এ হয় এবং transaction-scoped advisory lock দিয়ে serialize করা হয়—একাধিক API instance থেকেও seat oversell হয় না। একই class/student-এর জন্য partial unique index-ও একটির বেশি active (`HELD`/`CONFIRMED`) application আটকায়। Confirm একই hold-এ পুনরায় এলে idempotent response দেয়, seat দ্বিতীয়বার গণনা হয় না। Migration ও API code সবই `backend` folder-এ আছে; Docker/Compose configuration এই setup-এর অংশ নয়।

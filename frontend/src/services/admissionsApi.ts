@@ -115,9 +115,9 @@ export function getAdmissionsErrorMessage(error: unknown) {
   const responseBody: unknown = axios.isAxiosError(error) ? error.response?.data : undefined
   const responseMessage =
     typeof responseBody === 'object' &&
-    responseBody !== null &&
-    'error' in responseBody &&
-    typeof responseBody.error === 'string'
+      responseBody !== null &&
+      'error' in responseBody &&
+      typeof responseBody.error === 'string'
       ? responseBody.error
       : undefined
   if (!status) {

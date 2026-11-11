@@ -265,7 +265,7 @@ const Student = () => {
       if (response.data.success) {
         toast.success("Student has been deleted successfully");
         setIsDeleteConfirmOpen(false);
-        searchStudents({ preventDefault: () => {} });
+        searchStudents({ preventDefault: () => { } });
       } else {
         toast.error(response.data.message);
       }

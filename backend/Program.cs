@@ -150,7 +150,7 @@ static string ResolveProjectDirectory()
     var candidates = new[]
     {
         currentDirectory,
-        Path.Combine(currentDirectory, "smms-backend"),
+        Path.Combine(currentDirectory, "backend"),
         AppContext.BaseDirectory
     };
 
@@ -159,7 +159,7 @@ static string ResolveProjectDirectory()
         DirectoryInfo? directory = new(Path.GetFullPath(candidate));
         while (directory is not null)
         {
-            if (File.Exists(Path.Combine(directory.FullName, "smms-backend.csproj")) &&
+            if (File.Exists(Path.Combine(directory.FullName, "backend.csproj")) &&
                 Directory.Exists(Path.Combine(directory.FullName, "Migrations")))
             {
                 return directory.FullName;
@@ -169,7 +169,7 @@ static string ResolveProjectDirectory()
         }
     }
 
-    throw new DirectoryNotFoundException("Could not locate the smms-backend project directory.");
+    throw new DirectoryNotFoundException("Could not locate the backend project directory.");
 }
 
 static void LoadDotEnv(string path)

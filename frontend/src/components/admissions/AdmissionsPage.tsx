@@ -295,7 +295,7 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
           <span aria-hidden="true">/</span>
           <strong>আবেদন করুন</strong>
         </nav>
-         <div className="panel application-form-panel">
+        <div className="panel application-form-panel">
           <div className="admissions-section-title"><div><h2>Student identity</h2><p>Applying for {selectedClass.name}. Enter the 17-digit birth registration number.</p></div></div>
           <form className="identity-form" onSubmit={submitApplication}>
             <label htmlFor="student-id">Birth registration number</label>
@@ -327,41 +327,47 @@ function AdmissionsPage({ initialSection = 'classes' }: { initialSection?: Admis
         </article>
       </section> : screen === 'classes' ? <>
 
-      <section id="admissions-create" className="panel create-class-panel">
-        <div className="admissions-section-title"><div><h2>Create a class</h2><p>Create a separate class and seat count for each shift.</p></div></div>
-        <form className="create-class-form" onSubmit={createClass}>
-          <label className="admission-field"><span>Class name</span><input value={className} onChange={(event) => setClassName(event.target.value)} placeholder="e.g. Class 6 - Morning Shift" maxLength={100} /></label>
-          <label className="admission-field seats-field"><span>Total seats</span><input type="number" min="1" step="1" value={totalSeats} onChange={(event) => setTotalSeats(event.target.value)} placeholder="120" /></label>
-          <button type="submit" className="admission-button admission-button-primary" disabled={working === 'create-class'}><Plus size={18} />Create class</button>
-        </form>
-      </section>
+        <section id="admissions-create" className="panel create-class-panel">
+          <div className="admissions-section-title"><div><h2>Create a class</h2><p>Create a separate class and seat count for each shift.</p></div></div>
+          <form className="create-class-form" onSubmit={createClass}>
+            <label className="admission-field"><span>Class name</span><input value={className} onChange={(event) => setClassName(event.target.value)} placeholder="e.g. Class 6 - Morning Shift" maxLength={100} /></label>
+            <label className="admission-field seats-field"><span>Total seats</span><input type="number" min="1" step="1" value={totalSeats} onChange={(event) => setTotalSeats(event.target.value)} placeholder="120" /></label>
+            <button type="submit" className="admission-button admission-button-primary" disabled={working === 'create-class'}><Plus size={18} />Create class</button>
+          </form>
+        </section>
 
-      <section id="admissions-classes" className="admissions-section">
-        <div className="admissions-section-title admissions-list-heading"><div><h2>Classes</h2><p>{classes.length} {classes.length === 1 ? 'class' : 'classes'}</p></div><div className="admissions-list-actions"><button className="admission-button admission-button-secondary" onClick={() => setScreen('applications')}><Users size={17} />আমার আবেদন</button><button className="admission-button admission-button-secondary" onClick={() => void reloadData().catch((error) => showToast('error', getAdmissionsErrorMessage(error)))}><RefreshCw size={17} />Refresh</button></div></div>
-        {loading && <div className="admissions-empty">Loading classes...</div>}
-        {!loading && classes.length === 0 && !loadFailed && <div className="admissions-empty">No classes yet. Create the first class using the form above.</div>}
-        <div className="class-list">
-          {classes.map((schoolClass) => {
-            const details = classDetails[schoolClass.id]
-            const currentClass = details ?? schoolClass
-            const isExpanded = expandedClassId === schoolClass.id
+        <section id="admissions-classes" className="admissions-section">
+          <div className="admissions-section-title admissions-list-heading"><div><h2>Classes</h2><p>{classes.length} {classes.length === 1 ? 'class' : 'classes'}</p></div><div className="admissions-list-actions"><button className="admission-button admission-button-secondary" onClick={() => setScreen('applications')}><Users size={17} />আমার আবেদন</button><button className="admission-button admission-button-secondary" onClick={() => void reloadData().catch((error) => showToast('error', getAdmissionsErrorMessage(error)))}><RefreshCw size={17} />Refresh</button></div></div>
+          {loading && <div className="admissions-empty">Loading classes...</div>}
+          {!loading && classes.length === 0 && !loadFailed && <div className="admissions-empty">No classes yet. Create the first class using the form above.</div>}
+          <div className="class-list">
+            {classes.map((schoolClass) => {
+              const details = classDetails[schoolClass.id]
+              const currentClass = details ?? schoolClass
+              const isExpanded = expandedClassId === schoolClass.id
 
-            return (
-              <article className="panel class-card" key={schoolClass.id}>
-                <div className="class-card-heading"><div><h3>{schoolClass.name}</h3><span>Class ID: {schoolClass.id}</span></div><div className="class-card-actions"><button type="button" className="admission-button admission-button-secondary" onClick={() => void toggleClassDetails(schoolClass.id)} disabled={working === `class:${schoolClass.id}`}><ArrowDownUp size={17} />{isExpanded ? 'Hide details' : 'Seat details'}</button><button type="button" className="admission-button admission-button-danger" onClick={() => void deleteClass(schoolClass)} disabled={working === `delete-class:${schoolClass.id}`}><Trash2 size={17} />Delete class</button></div></div>
-                <div className="seat-stats">
-                  <div><span>Total seats</span><strong>{schoolClass.totalSeats}</strong></div>
-                  <div><span>On hold</span><strong>{schoolClass.heldSeats}</strong></div>
-                  <div><span>Confirmed</span><strong>{schoolClass.confirmedSeats}</strong></div>
-                  <div className={schoolClass.availableSeats === 0 ? 'seat-stat-full' : 'seat-stat-available'}><span>Available</span><strong>{schoolClass.availableSeats}</strong></div>
-                </div>
-                {isExpanded && <div className="class-detail-note">Latest seat count: {currentClass.heldSeats} on hold, {currentClass.confirmedSeats} confirmed, and {currentClass.availableSeats} available.</div>}
-                <div className="class-card-footer"><span><Users size={17} />{schoolClass.availableSeats > 0 ? `${schoolClass.availableSeats} seats available` : 'No seats available'}</span><button className="admission-button admission-button-primary" onClick={() => { setStudentIdInput(studentId); setActiveHoldId(null); setApplyClass(schoolClass); setScreen('apply') }} disabled={schoolClass.availableSeats < 1 || working === schoolClass.id}><Plus size={18} />আবেদন করুন</button></div>
-              </article>
-            )
-          })}
-        </div>
-      </section>
+              return (
+                <article className="panel class-card" key={schoolClass.id}>
+                  <div className="class-card-heading"><div><h3>{schoolClass.name}</h3><span>Class ID: {schoolClass.id}</span></div><div className="class-card-actions"><button type="button" className="admission-button admission-button-secondary" onClick={() => void toggleClassDetails(schoolClass.id)} disabled={working === `class:${schoolClass.id}`}>
+                    <ArrowDownUp size={17} />
+                    {isExpanded ? 'Hide details' : 'Seat details'}</button>
+                    {/* <button type="button" className="admission-button admission-button-danger" onClick={() => void deleteClass(schoolClass)} disabled={working === `delete-class:${schoolClass.id}`}>
+                    <Trash2 size={17} />Delete class
+                    </button> */}
+                  </div></div>
+                  <div className="seat-stats">
+                    <div><span>Total seats</span><strong>{schoolClass.totalSeats}</strong></div>
+                    <div><span>On hold</span><strong>{schoolClass.heldSeats}</strong></div>
+                    <div><span>Confirmed</span><strong>{schoolClass.confirmedSeats}</strong></div>
+                    <div className={schoolClass.availableSeats === 0 ? 'seat-stat-full' : 'seat-stat-available'}><span>Available</span><strong>{schoolClass.availableSeats}</strong></div>
+                  </div>
+                  {isExpanded && <div className="class-detail-note">Latest seat count: {currentClass.heldSeats} on hold, {currentClass.confirmedSeats} confirmed, and {currentClass.availableSeats} available.</div>}
+                  <div className="class-card-footer"><span><Users size={17} />{schoolClass.availableSeats > 0 ? `${schoolClass.availableSeats} seats available` : 'No seats available'}</span><button className="admission-button admission-button-primary" onClick={() => { setStudentIdInput(studentId); setActiveHoldId(null); setApplyClass(schoolClass); setScreen('apply') }} disabled={schoolClass.availableSeats < 1 || working === schoolClass.id}><Plus size={18} />আবেদন করুন</button></div>
+                </article>
+              )
+            })}
+          </div>
+        </section>
 
       </> : null}
 

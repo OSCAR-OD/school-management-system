@@ -74,11 +74,10 @@ const UserTypeSelector = ({ selected, onSelect }) => (
       <button
         key={type}
         onClick={() => onSelect(type)}
-        className={`px-5 py-2 text-sm font-medium rounded-full transition duration-200 ${
-          selected === type
+        className={`px-5 py-2 text-sm font-medium rounded-full transition duration-200 ${selected === type
             ? "bg-blue-600 text-white shadow"
             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-        }`}
+          }`}
       >
         {type}
       </button>

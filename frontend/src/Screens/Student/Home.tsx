@@ -67,10 +67,9 @@ const Home = () => {
       font-medium text-sm w-full
       rounded-md
       transition-all duration-300 ease-in-out
-      ${
-        isSelected
-          ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg transform -translate-y-1"
-          : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+      ${isSelected
+        ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white shadow-lg transform -translate-y-1"
+        : "bg-blue-50 text-blue-700 hover:bg-blue-100"
       }
     `;
   };
